@@ -17,11 +17,21 @@ func TestConvertLittleEndianHexToIP(t *testing.T) {
 	})
 
 	t.Run("invalid hex string", func(t *testing.T) {
-		hexInput := "01EE"
-		_, err := ConvertLittleEndianHexToIP(hexInput)
+		type test struct {
+			hexInput string
+			want     error
+		}
 
-		if err != ErrInvalidCharacterCount {
-			t.Errorf("wanted an error but didn't get one")
+		tests := []test{
+			{hexInput: "01EE", want: ErrInvalidCharacterCount},
+			{hexInput: "", want: ErrInvalidCharacterCount},
+		}
+
+		for _, tc := range tests {
+			_, err := ConvertLittleEndianHexToIP(tc.hexInput)
+			if err != tc.want {
+				t.Errorf("wanted an error but didn't get one")
+			}
 		}
 	})
 }
