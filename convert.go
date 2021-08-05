@@ -46,7 +46,7 @@ func ConvertLittleEndianHexToIP(s string) (string, error) {
 	return ip, nil
 }
 
-// ConvertBigEndianHexToPort returns the port represented by the hexadecimal stirng s.
+// ConvertBigEndianHexToPort returns the TCP port represented by the hexadecimal stirng s.
 //
 // ConvertBigEndianHexToPort expects the following to be true:
 //   - string s to be EXACTLY 4 hexadecimal characters
