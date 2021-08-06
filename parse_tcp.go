@@ -19,6 +19,11 @@ const (
 	TcpConnectionEndIndex = TcpConnectionStartIndex + HexCharactersInIPAddress + 1 + HexCharactersInPort + 1 + HexCharactersInIPAddress + 1 + HexCharactersInPort
 )
 
+// ParseTcpConnection extracts the local and remote IPv4 address and TCP port from single lines of /proc/net/tcp
+// passed in as a string s.
+//
+// ParseTcpConnection only handles single lines, the caller must handle iterating over multiple entries.
+// If there is an error parsing the stirng s, an empty TcpConnection struct with the error will be returned.
 func ParseTcpConnection(s string) (TcpConnection, error) {
 	if len(s) < TcpConnectionEndIndex {
 		return TcpConnection{}, errors.New("TCP connection string is malformed")
