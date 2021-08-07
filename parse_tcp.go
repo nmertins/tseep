@@ -19,6 +19,31 @@ type TcpConnection struct {
 	remotePort    uint16
 }
 
+type CurrectConnections []TcpConnection
+
+func (c CurrectConnections) Contains(other TcpConnection) bool {
+	ret := false
+	for _, connection := range c {
+		if connection == other {
+			ret = true
+		}
+	}
+
+	return ret
+}
+
+func (c *CurrectConnections) Update(tcpConnections []TcpConnection) (newConnections []TcpConnection) {
+	for _, connection := range tcpConnections {
+		if !c.Contains(connection) {
+			newConnections = append(newConnections, connection)
+		}
+	}
+
+	*c = tcpConnections
+
+	return newConnections
+}
+
 func ParseListOfConnections(connections string) []TcpConnection {
 	lines := strings.Split(connections, "\n")
 	var parsedConnections []TcpConnection

@@ -50,3 +50,49 @@ func TestParseListOfConnections(t *testing.T) {
 		t.Errorf("got %q want %q", got, want)
 	}
 }
+
+func TestCurrentConnectionContains(t *testing.T) {
+	currentConnections := CurrectConnections{
+		{localAddress: "127.0.0.1", localPort: 9843, remoteAddress: "0.0.0.0", remotePort: 0},
+		{localAddress: "127.0.0.53", localPort: 53, remoteAddress: "0.0.0.0", remotePort: 0},
+		{localAddress: "0.0.0.0", localPort: 22, remoteAddress: "0.0.0.0", remotePort: 0},
+	}
+
+	existingConnection := TcpConnection{localAddress: "127.0.0.53", localPort: 53, remoteAddress: "0.0.0.0", remotePort: 0}
+
+	got := currentConnections.Contains(existingConnection)
+	want := true
+
+	if got != want {
+		t.Errorf("could not identify existing connection")
+	}
+}
+
+func TestCurrentConnectionsUpdate(t *testing.T) {
+	t0, _ := ioutil.ReadFile("_testdata/sample_input.t0")
+	t0Connections := ParseListOfConnections(string(t0))
+
+	currentConnections := CurrectConnections{}
+	t0NewConnections := currentConnections.Update(t0Connections)
+
+	if len(t0NewConnections) != 3 {
+		t.Errorf("expected 3 new connections but got %d", len(t0NewConnections))
+	}
+
+	if len(currentConnections) != 3 {
+		t.Errorf("expected current connections to contain 3 connections but has %d", len(currentConnections))
+	}
+
+	t1, _ := ioutil.ReadFile("_testdata/sample_input.t1")
+	t1Connections := ParseListOfConnections(string(t1))
+
+	t1NewConnections := currentConnections.Update(t1Connections)
+
+	if len(t1NewConnections) != 5 {
+		t.Errorf("expected 5 new connections but got %d", len(t1NewConnections))
+	}
+
+	if len(currentConnections) != 8 {
+		t.Errorf("expected current connections to contain 8 connections but has %d", len(currentConnections))
+	}
+}
