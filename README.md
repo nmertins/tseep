@@ -4,10 +4,10 @@
 
 ## Building
 
-Download and install [Go](https://golang.org/dl/). Run `go build` from the root of the repository.
+Download and install [Go](https://golang.org/doc/install). Run `go build` from the root of the repository.
 
 ```shell
-git clone <git repo>
+git clone https://github.com/nmertins/tseep.git
 cd tseep
 go build tseep.go
 ```
