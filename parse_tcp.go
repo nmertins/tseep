@@ -5,6 +5,13 @@ import (
 	"strings"
 )
 
+const (
+	// Initial offset in /proc/net/tcp containing indent and connection entry number
+	TcpConnectionStartIndex = 6
+	// Connection details are given in the format: `<local address>:<local port> <remote address>:<remote port>`
+	TcpConnectionEndIndex = TcpConnectionStartIndex + HexCharactersInIPAddress + 1 + HexCharactersInPort + 1 + HexCharactersInIPAddress + 1 + HexCharactersInPort
+)
+
 type TcpConnection struct {
 	localAddress  string
 	localPort     uint16
@@ -12,12 +19,17 @@ type TcpConnection struct {
 	remotePort    uint16
 }
 
-const (
-	// Initial offset in /proc/net/tcp containing indent and connection entry number
-	TcpConnectionStartIndex = 6
-	// Connection details are given in the format: `<local address>:<local port> <remote address>:<remote port>`
-	TcpConnectionEndIndex = TcpConnectionStartIndex + HexCharactersInIPAddress + 1 + HexCharactersInPort + 1 + HexCharactersInIPAddress + 1 + HexCharactersInPort
-)
+func ParseListOfConnections(connections string) []TcpConnection {
+	lines := strings.Split(connections, "\n")
+	var parsedConnections []TcpConnection
+
+	for _, line := range lines[1:] {
+		tcp, _ := ParseTcpConnection(line)
+		parsedConnections = append(parsedConnections, tcp)
+	}
+
+	return parsedConnections
+}
 
 // ParseTcpConnection extracts the local and remote IPv4 address and TCP port from single lines of /proc/net/tcp
 // passed in as a string s.

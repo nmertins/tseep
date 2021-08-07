@@ -1,6 +1,10 @@
 package main
 
-import "testing"
+import (
+	"io/ioutil"
+	"reflect"
+	"testing"
+)
 
 func TestParseTcpConnection(t *testing.T) {
 
@@ -26,4 +30,23 @@ func TestParseTcpConnection(t *testing.T) {
 			t.Errorf("wanted error but didn't get one")
 		}
 	})
+}
+
+func TestParseListOfConnections(t *testing.T) {
+	data, _ := ioutil.ReadFile("_testdata/sample_input.t0")
+	connections := string(data)
+	got := ParseListOfConnections(connections)
+	if len(got) != 3 {
+		t.Fatalf("expected 3 connections, got %d", len(got))
+	}
+
+	want := []TcpConnection{
+		{localAddress: "127.0.0.1", localPort: 9843, remoteAddress: "0.0.0.0", remotePort: 0},
+		{localAddress: "127.0.0.53", localPort: 53, remoteAddress: "0.0.0.0", remotePort: 0},
+		{localAddress: "0.0.0.0", localPort: 22, remoteAddress: "0.0.0.0", remotePort: 0},
+	}
+
+	if !reflect.DeepEqual(got, want) {
+		t.Errorf("got %q want %q", got, want)
+	}
 }
