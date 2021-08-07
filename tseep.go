@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"io/ioutil"
 	"time"
 )
 
@@ -11,7 +12,16 @@ const (
 
 func main() {
 	for {
-		fmt.Printf("Hello, world!\n")
 		time.Sleep(MainLoopPeriod)
+
+		data, err := ioutil.ReadFile("/proc/net/tcp")
+		if err != nil {
+			fmt.Printf("Error reading /proc/net/tcp: %s\n", err.Error())
+			continue
+		}
+
+		connections := string(data)
+
+		fmt.Printf("%s", connections)
 	}
 }
