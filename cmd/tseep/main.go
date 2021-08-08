@@ -18,11 +18,12 @@ func main() {
 	}
 
 	for {
-		newConnections, err := currentConnections.Update()
+		newConnections, portScans, err := currentConnections.Update()
 		if err != nil {
 			fmt.Printf("Error reading TCP connections: %s\n", err.Error())
 		} else {
 			tseep.PrintNewConnections(os.Stdout, newConnections)
+			tseep.PrintPortScans(os.Stdout, portScans)
 		}
 		time.Sleep(MainLoopPeriod)
 	}

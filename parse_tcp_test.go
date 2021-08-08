@@ -84,7 +84,7 @@ func TestCurrentConnectionsUpdate(t *testing.T) {
 	currentConnections := CurrectConnections{
 		Source: "_testdata/sample_input.t0",
 	}
-	t0NewConnections, _ := currentConnections.Update()
+	t0NewConnections, _, _ := currentConnections.Update()
 
 	if len(t0NewConnections) != 3 {
 		t.Errorf("expected 3 new connections but got %d", len(t0NewConnections))
@@ -95,7 +95,7 @@ func TestCurrentConnectionsUpdate(t *testing.T) {
 	}
 
 	currentConnections.Source = "_testdata/sample_input.t1"
-	t1NewConnections, _ := currentConnections.Update()
+	t1NewConnections, _, _ := currentConnections.Update()
 
 	if len(t1NewConnections) != 5 {
 		t.Errorf("expected 5 new connections but got %d", len(t1NewConnections))

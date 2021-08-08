@@ -63,11 +63,11 @@ func (c CurrectConnections) contains(other TcpConnection) int {
 
 // Update checks for TCP connections, compares them with the existing state and
 // returns a list of new connections.
-func (c *CurrectConnections) Update() (newConnections []TcpConnection, err error) {
+func (c *CurrectConnections) Update() (newConnections []TcpConnection, portScans []PortScan, err error) {
 	timestamp := time.Now()
 	tcpConnections, err := getCurrentConnections(c.Source, timestamp)
 	if err != nil {
-		return []TcpConnection{}, err
+		return []TcpConnection{}, []PortScan{}, err
 	}
 
 	for _, connection := range tcpConnections {
@@ -80,9 +80,9 @@ func (c *CurrectConnections) Update() (newConnections []TcpConnection, err error
 	}
 
 	c.connections = append(c.connections, newConnections...)
-	c.checkForPortScans(timestamp)
+	portScans = c.checkForPortScans(timestamp)
 
-	return newConnections, nil
+	return newConnections, portScans, nil
 }
 
 // checkForPortScans interates over the current TCP connections looking for
