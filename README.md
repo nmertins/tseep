@@ -9,7 +9,7 @@ Download and install [Go](https://golang.org/doc/install). Run `go build` from t
 ```shell
 git clone https://github.com/nmertins/tseep.git
 cd tseep
-go build tseep.go
+go build -o tseep cmd/tseep/main.go
 ```
 
 ## Running
