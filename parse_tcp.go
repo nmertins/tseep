@@ -21,6 +21,17 @@ type TcpConnection struct {
 	localPort     uint16
 	remoteAddress string
 	remotePort    uint16
+	timestamp     time.Time
+}
+
+func (t TcpConnection) equals(other TcpConnection) bool {
+	ret := true
+	ret = ret && t.localAddress == other.localAddress
+	ret = ret && (t.localPort == other.localPort)
+	ret = ret && (t.remoteAddress == other.remoteAddress)
+	ret = ret && (t.remotePort == other.remotePort)
+
+	return ret
 }
 
 type CurrectConnections struct {
@@ -31,9 +42,7 @@ type CurrectConnections struct {
 func (c CurrectConnections) contains(other TcpConnection) bool {
 	ret := false
 	for _, connection := range c.connections {
-		if connection == other {
-			ret = true
-		}
+		ret = ret || connection.equals(other)
 	}
 
 	return ret
@@ -63,17 +72,18 @@ func getCurrentConnections(source string) ([]TcpConnection, error) {
 	}
 
 	connectionsRaw := string(data)
-	tcpConnections := parseListOfConnections(connectionsRaw)
+	tcpConnections := parseListOfConnections(connectionsRaw, time.Now())
 
 	return tcpConnections, nil
 }
 
-func parseListOfConnections(connections string) []TcpConnection {
+func parseListOfConnections(connections string, timestamp time.Time) []TcpConnection {
 	lines := strings.Split(connections, "\n")
 	var parsedConnections []TcpConnection
 
 	for _, line := range lines[1:] {
 		tcp, _ := parseTcpConnection(line)
+		tcp.timestamp = timestamp
 		parsedConnections = append(parsedConnections, tcp)
 	}
 

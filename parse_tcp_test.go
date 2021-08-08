@@ -2,10 +2,18 @@ package tseep
 
 import (
 	"bytes"
-	"reflect"
 	"testing"
 	"time"
 )
+
+func assertTcpConnections(t *testing.T, got []TcpConnection, want []TcpConnection) bool {
+	ret := true
+	for i := range got {
+		ret = ret && (got[i].equals(want[i]))
+	}
+
+	return ret
+}
 
 func TestParseTcpConnection(t *testing.T) {
 
@@ -45,8 +53,8 @@ func TestGetCurrentConnections(t *testing.T) {
 		{localAddress: "0.0.0.0", localPort: 22, remoteAddress: "0.0.0.0", remotePort: 0},
 	}
 
-	if !reflect.DeepEqual(got, want) {
-		t.Errorf("got %q want %q", got, want)
+	if !assertTcpConnections(t, got, want) {
+		t.Errorf("got %v want %v", got, want)
 	}
 }
 
@@ -73,8 +81,7 @@ func TestCurrentConnectionContains(t *testing.T) {
 
 func TestCurrentConnectionsUpdate(t *testing.T) {
 	currentConnections := CurrectConnections{
-		Source:      "_testdata/sample_input.t0",
-		connections: []TcpConnection{},
+		Source: "_testdata/sample_input.t0",
 	}
 	t0NewConnections, _ := currentConnections.Update()
 
