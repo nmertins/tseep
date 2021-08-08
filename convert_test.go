@@ -8,7 +8,7 @@ func TestConvertLittleEndianHexToIP(t *testing.T) {
 
 	t.Run("valid hex string", func(t *testing.T) {
 		hexInput := "0100007F"
-		got, _ := ConvertLittleEndianHexToIP(hexInput)
+		got, _ := convertLittleEndianHexToIP(hexInput)
 		want := "127.0.0.1"
 
 		if got != want {
@@ -23,12 +23,12 @@ func TestConvertLittleEndianHexToIP(t *testing.T) {
 		}
 
 		tests := []test{
-			{hexInput: "01EE", want: MalformedHexInput},
-			{hexInput: "", want: MalformedHexInput},
+			{hexInput: "01EE", want: malformedHexInput},
+			{hexInput: "", want: malformedHexInput},
 		}
 
 		for _, tc := range tests {
-			_, err := ConvertLittleEndianHexToIP(tc.hexInput)
+			_, err := convertLittleEndianHexToIP(tc.hexInput)
 			if err != tc.want {
 				t.Errorf("wanted an error but didn't get one")
 			}
@@ -51,7 +51,7 @@ func TestConvertBigEndianHexToPort(t *testing.T) {
 		}
 
 		for _, tc := range tests {
-			got, _ := ConvertBigEndianHexToPort(tc.hexInput)
+			got, _ := convertBigEndianHexToPort(tc.hexInput)
 
 			if got != tc.want {
 				t.Errorf("got %d want %d", got, tc.want)
@@ -66,13 +66,13 @@ func TestConvertBigEndianHexToPort(t *testing.T) {
 		}
 
 		tests := []test{
-			{hexInput: "", want: MalformedHexInput},
-			{hexInput: "00", want: MalformedHexInput},
-			{hexInput: "TEST", want: MalformedHexInput},
+			{hexInput: "", want: malformedHexInput},
+			{hexInput: "00", want: malformedHexInput},
+			{hexInput: "TEST", want: malformedHexInput},
 		}
 
 		for _, tc := range tests {
-			_, err := ConvertBigEndianHexToPort(tc.hexInput)
+			_, err := convertBigEndianHexToPort(tc.hexInput)
 
 			if err != tc.want {
 				t.Errorf("got %q want %q", err, tc.want)
