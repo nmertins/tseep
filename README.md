@@ -9,7 +9,7 @@ Download and install [Go](https://golang.org/doc/install). Run `go build` from t
 ```shell
 git clone https://github.com/nmertins/tseep.git
 cd tseep
-go build -o tseep cmd/tseep/main.go
+make build
 ```
 
 ## Running
@@ -17,5 +17,5 @@ go build -o tseep cmd/tseep/main.go
 After building, run the executable `tseep`. Press Ctrl + C to stop execution.
 
 ```shell
-./tseep
+./bin/tseep-linux-amd64
 ```
