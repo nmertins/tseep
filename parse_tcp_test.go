@@ -73,10 +73,10 @@ func TestCurrentConnectionContains(t *testing.T) {
 	existingConnection := TcpConnection{localAddress: "127.0.0.53", localPort: 53, remoteAddress: "0.0.0.0", remotePort: 0}
 
 	got := currentConnections.contains(existingConnection)
-	want := true
+	want := 1
 
 	if got != want {
-		t.Errorf("could not identify existing connection")
+		t.Errorf("got %d want %d", got, want)
 	}
 }
 

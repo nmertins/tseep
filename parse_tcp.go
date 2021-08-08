@@ -45,10 +45,15 @@ type portScan struct {
 	ports         []int
 }
 
-func (c CurrectConnections) contains(other TcpConnection) bool {
-	ret := false
-	for _, connection := range c.connections {
-		ret = ret || connection.equals(other)
+// Looks through connections for matching local and remote address and port.
+// If a match is found the index is returned, otherwise -1.
+func (c CurrectConnections) contains(other TcpConnection) int {
+	ret := -1
+	for i, connection := range c.connections {
+		if connection.equals(other) {
+			ret = i
+			break
+		}
 	}
 
 	return ret
@@ -63,8 +68,11 @@ func (c *CurrectConnections) Update() (newConnections []TcpConnection, err error
 	}
 
 	for _, connection := range tcpConnections {
-		if !c.contains(connection) {
+		idx := c.contains(connection)
+		if idx == -1 {
 			newConnections = append(newConnections, connection)
+		} else {
+			c.connections[idx].timestamp = connection.timestamp
 		}
 	}
 
