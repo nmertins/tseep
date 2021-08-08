@@ -39,7 +39,7 @@ type CurrectConnections struct {
 	connections []TcpConnection
 }
 
-type portScan struct {
+type PortScan struct {
 	localAddress  string
 	remoteAddress string
 	ports         []int
@@ -88,7 +88,7 @@ func (c *CurrectConnections) Update() (newConnections []TcpConnection, err error
 //
 // Due to the amount of iteration going on here, it feels like there is probably
 // a better way to store/retrieve this data.
-func (c CurrectConnections) checkForPortScans(referenceTime time.Time) []portScan {
+func (c CurrectConnections) checkForPortScans(referenceTime time.Time) []PortScan {
 	scanMap := make(map[string]map[string][]int, 0)
 
 	// For each local address, build a map of remote addresses and the port they connected to.
@@ -108,11 +108,11 @@ func (c CurrectConnections) checkForPortScans(referenceTime time.Time) []portSca
 	}
 
 	// Look through the map for local/remote address combinations that have mroe than 3 port connections.
-	scans := make([]portScan, 0)
+	scans := make([]PortScan, 0)
 	for localAddress, remoteAddressMap := range scanMap {
 		for remoteAddress, ports := range remoteAddressMap {
 			if len(ports) >= portScanDetectionCount {
-				scan := portScan{
+				scan := PortScan{
 					localAddress: localAddress, remoteAddress: remoteAddress, ports: ports,
 				}
 				scans = append(scans, scan)
@@ -198,10 +198,34 @@ func parseTcpConnection(s string) (TcpConnection, error) {
 	}, nil
 }
 
+func formatTimestamp(t time.Time) string {
+	return fmt.Sprintf("%d-%02d-%02d %02d:%02d:%02d", t.Year(), t.Month(), t.Day(), t.Hour(), t.Minute(), t.Second())
+}
+
 // PrintNewConnections outputs the list of TCP connections to writer.
 func PrintNewConnections(writer io.Writer, t time.Time, newConnections []TcpConnection) {
-	timestamp := fmt.Sprintf("%d-%02d-%02d %02d:%02d:%02d", t.Year(), t.Month(), t.Day(), t.Hour(), t.Minute(), t.Second())
+	timestamp := formatTimestamp(t)
 	for _, connection := range newConnections {
 		fmt.Fprintf(writer, "%s: New connection: %s:%d -> %s:%d\n", timestamp, connection.remoteAddress, connection.remotePort, connection.localAddress, connection.localPort)
+	}
+}
+
+func portString(ports []int) string {
+	ret := ""
+
+	for i, port := range ports {
+		ret += fmt.Sprint(port)
+		if i != len(ports)-1 {
+			ret += ","
+		}
+	}
+
+	return ret
+}
+
+func PrintPortScans(writer io.Writer, t time.Time, portScans []PortScan) {
+	timestamp := formatTimestamp(t)
+	for _, scan := range portScans {
+		fmt.Fprintf(writer, "%s: Port scan detected: %s -> %s on ports %s", timestamp, scan.remoteAddress, scan.localAddress, portString(scan.ports))
 	}
 }

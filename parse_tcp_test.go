@@ -117,13 +117,15 @@ func TestPrintNewConnections(t *testing.T) {
 	buffer := bytes.Buffer{}
 	timestamp, _ := time.Parse("2006-01-02T15:04:05.000Z", "2021-04-28T15:28:15.000Z")
 	PrintNewConnections(&buffer, timestamp, newConnections)
+
+	got := buffer.String()
 	want := `2021-04-28 15:28:15: New connection: 192.0.2.56:5973 -> 10.0.0.5:80
 2021-04-28 15:28:15: New connection: 203.0.113.105:31313 -> 10.0.0.5:80
 2021-04-28 15:28:15: New connection: 203.0.113.94:9208 -> 10.0.0.5:80
 2021-04-28 15:28:15: New connection: 198.51.100.245:14201 -> 10.0.0.5:80
 `
-	if buffer.String() != want {
-		t.Errorf("got %q want %q", buffer.String(), want)
+	if got != want {
+		t.Errorf("got %q want %q", got, want)
 	}
 }
 
@@ -143,7 +145,7 @@ func TestPortScanDetected(t *testing.T) {
 		}
 
 		got := currentConnections.checkForPortScans(timestamp.Add(portScanDetectionPeriod))
-		want := []portScan{
+		want := []PortScan{
 			{localAddress: "10.0.0.5", remoteAddress: "192.0.2.56", ports: []int{80, 81, 82}},
 		}
 
@@ -170,4 +172,22 @@ func TestPortScanDetected(t *testing.T) {
 			t.Errorf("did not expect to detect a port scan")
 		}
 	})
+}
+
+func TestPrintPortScans(t *testing.T) {
+	portScans := []PortScan{
+		{localAddress: "10.0.0.5", remoteAddress: "192.0.2.56", ports: []int{80, 81, 82, 83}},
+	}
+
+	buffer := bytes.Buffer{}
+	timestamp, _ := time.Parse("2006-01-02T15:04:05.000Z", "2021-04-28T15:28:05.000Z")
+
+	PrintPortScans(&buffer, timestamp, portScans)
+
+	got := buffer.String()
+	want := `2021-04-28 15:28:05: Port scan detected: 192.0.2.56 -> 10.0.0.5 on ports 80,81,82,83`
+
+	if got != want {
+		t.Errorf("got %q want %q", got, want)
+	}
 }
