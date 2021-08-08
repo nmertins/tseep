@@ -240,6 +240,6 @@ func portString(ports []int) string {
 func PrintPortScans(writer io.Writer, portScans []PortScan) {
 	for _, scan := range portScans {
 		timestamp := formatTimestamp(scan.timestamp)
-		fmt.Fprintf(writer, "%s: Port scan detected: %s -> %s on ports %s", timestamp, scan.remoteAddress, scan.localAddress, portString(scan.ports))
+		fmt.Fprintf(writer, "%s: Port scan detected: %s -> %s on ports %s\n", timestamp, scan.remoteAddress, scan.localAddress, portString(scan.ports))
 	}
 }

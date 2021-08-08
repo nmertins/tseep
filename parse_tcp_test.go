@@ -221,7 +221,8 @@ func TestPrintPortScans(t *testing.T) {
 	PrintPortScans(&buffer, portScans)
 
 	got := buffer.String()
-	want := `2021-04-28 15:28:05: Port scan detected: 192.0.2.56 -> 10.0.0.5 on ports 80,81,82,83`
+	want := `2021-04-28 15:28:05: Port scan detected: 192.0.2.56 -> 10.0.0.5 on ports 80,81,82,83
+`
 
 	if got != want {
 		t.Errorf("got %q want %q", got, want)
