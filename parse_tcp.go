@@ -2,7 +2,10 @@ package main
 
 import (
 	"errors"
+	"fmt"
+	"io"
 	"strings"
+	"time"
 )
 
 const (
@@ -94,4 +97,11 @@ func ParseTcpConnection(s string) (TcpConnection, error) {
 		remoteAddress: remoteAddress,
 		remotePort:    remotePort,
 	}, nil
+}
+
+func PrintNewConnections(writer io.Writer, t time.Time, newConnections []TcpConnection) {
+	timestamp := fmt.Sprintf("%d-%02d-%02d %02d:%02d:%02d", t.Year(), t.Month(), t.Day(), t.Hour(), t.Minute(), t.Second())
+	for _, connection := range newConnections {
+		fmt.Fprintf(writer, "%s: New connection: %s:%d -> %s:%d\n", timestamp, connection.remoteAddress, connection.remotePort, connection.localAddress, connection.localPort)
+	}
 }
