@@ -1,4 +1,4 @@
-package main
+package tseep
 
 import (
 	"errors"

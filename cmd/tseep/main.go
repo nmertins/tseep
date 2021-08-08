@@ -5,6 +5,8 @@ import (
 	"io/ioutil"
 	"os"
 	"time"
+
+	"github.com/nmertins/tseep"
 )
 
 const (
@@ -12,7 +14,7 @@ const (
 )
 
 func main() {
-	currentConnections := CurrectConnections{}
+	currentConnections := tseep.CurrectConnections{}
 
 	for {
 		time.Sleep(MainLoopPeriod)
@@ -24,9 +26,9 @@ func main() {
 		}
 
 		connectionsRaw := string(data)
-		tcpConnections := ParseListOfConnections(connectionsRaw)
+		tcpConnections := tseep.ParseListOfConnections(connectionsRaw)
 		newConnections := currentConnections.Update(tcpConnections)
 
-		PrintNewConnections(os.Stdout, time.Now(), newConnections)
+		tseep.PrintNewConnections(os.Stdout, time.Now(), newConnections)
 	}
 }
