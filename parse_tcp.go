@@ -37,6 +37,7 @@ func (t TcpConnection) equals(other TcpConnection) bool {
 type CurrectConnections struct {
 	Source      string
 	connections []TcpConnection
+	portScans   []PortScan
 }
 
 type PortScan struct {
@@ -78,6 +79,7 @@ func (c *CurrectConnections) Update() (newConnections []TcpConnection, err error
 	}
 
 	c.connections = append(c.connections, newConnections...)
+	c.checkForPortScans(timestamp)
 
 	return newConnections, nil
 }
@@ -89,7 +91,12 @@ func (c *CurrectConnections) Update() (newConnections []TcpConnection, err error
 // Due to the amount of iteration going on here, it feels like there is probably
 // a better way to store/retrieve this data.
 func (c CurrectConnections) checkForPortScans(referenceTime time.Time) []PortScan {
-	scanMap := make(map[string]map[string][]int, 0)
+	type portsWithTimestamp struct {
+		Ports     []int
+		Timestamp time.Time
+	}
+
+	scanMap := make(map[string]map[string]portsWithTimestamp, 0)
 
 	// For each local address, build a map of remote addresses and the port they connected to.
 	for _, connection := range c.connections {
@@ -99,21 +106,27 @@ func (c CurrectConnections) checkForPortScans(referenceTime time.Time) []PortSca
 		}
 		_, ok := scanMap[connection.localAddress]
 		if !ok {
-			scanMap[connection.localAddress] = map[string][]int{
-				connection.remoteAddress: make([]int, 0),
+			scanMap[connection.localAddress] = map[string]portsWithTimestamp{
+				connection.remoteAddress: {Ports: make([]int, 0), Timestamp: connection.timestamp},
 			}
 		}
-		scanMap[connection.localAddress][connection.remoteAddress] = append(scanMap[connection.localAddress][connection.remoteAddress], int(connection.localPort))
+		pwt := scanMap[connection.localAddress][connection.remoteAddress]
+		pwt.Ports = append(pwt.Ports, int(connection.localPort))
+		// update timestamp to match latest connection attempt
+		if connection.timestamp.After(pwt.Timestamp) {
+			pwt.Timestamp = connection.timestamp
+		}
 
+		scanMap[connection.localAddress][connection.remoteAddress] = pwt
 	}
 
 	// Look through the map for local/remote address combinations that have mroe than 3 port connections.
 	scans := make([]PortScan, 0)
 	for localAddress, remoteAddressMap := range scanMap {
-		for remoteAddress, ports := range remoteAddressMap {
-			if len(ports) >= portScanDetectionCount {
+		for remoteAddress, pwt := range remoteAddressMap {
+			if (len(pwt.Ports) >= portScanDetectionCount) && (pwt.Timestamp.Equal(referenceTime)) {
 				scan := PortScan{
-					localAddress: localAddress, remoteAddress: remoteAddress, ports: ports,
+					localAddress: localAddress, remoteAddress: remoteAddress, ports: pwt.Ports,
 				}
 				scans = append(scans, scan)
 			}

@@ -172,6 +172,34 @@ func TestPortScanDetected(t *testing.T) {
 			t.Errorf("did not expect to detect a port scan")
 		}
 	})
+
+	t.Run("don't repeat port scan alerts", func(t *testing.T) {
+		// Connection attempts that meet the port scanning criteria
+		tcpConnections := []TcpConnection{
+			{localAddress: "10.0.0.5", localPort: 80, remoteAddress: "192.0.2.56", remotePort: 5973, timestamp: timestamp},
+			{localAddress: "10.0.0.5", localPort: 81, remoteAddress: "192.0.2.56", remotePort: 5973, timestamp: timestamp.Add(portScanDetectionPeriod / 10)},
+			{localAddress: "10.0.0.5", localPort: 82, remoteAddress: "192.0.2.56", remotePort: 5973, timestamp: timestamp.Add(portScanDetectionPeriod / 5)},
+		}
+
+		currentConnections := CurrectConnections{
+			Source:      "",
+			connections: tcpConnections,
+		}
+
+		got := currentConnections.checkForPortScans(timestamp.Add(portScanDetectionPeriod / 5))
+
+		if len(got) == 0 {
+			t.Errorf("expected to detect a port scan")
+		}
+
+		// Simulating the next call to Update. We already reported the port scan on the last one,
+		// so we don't expect to find one here.
+		got = currentConnections.checkForPortScans(timestamp.Add(portScanDetectionPeriod / 5).Add(10 * time.Second))
+
+		if len(got) != 0 {
+			t.Errorf("did not expect to detect a port scan")
+		}
+	})
 }
 
 func TestPrintPortScans(t *testing.T) {
