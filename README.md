@@ -1,6 +1,6 @@
 # t👀p
 
-`tseep` monitors TCP connections on the host and prints new connections every 10 seconds.
+`tseep` monitors TCP connections on the host and prints new connections every 10 seconds. When `tseep` starts, all existing connections will be reported as new as part of the initialization process.
 
 ## Building
 
