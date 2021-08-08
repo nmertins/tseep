@@ -10,10 +10,8 @@ import (
 )
 
 const (
-	// Initial offset in /proc/net/tcp containing indent and connection entry number
-	tcpConnectionStartIndex = 6
 	// Connection details are given in the format: `<local address>:<local port> <remote address>:<remote port>`
-	tcpConnectionEndIndex = tcpConnectionStartIndex + hexCharactersInIPAddress + 1 + hexCharactersInPort + 1 + hexCharactersInIPAddress + 1 + hexCharactersInPort
+	tcpConnectionLength = hexCharactersInIPAddress + 1 + hexCharactersInPort + 1 + hexCharactersInIPAddress + 1 + hexCharactersInPort
 )
 
 type TcpConnection struct {
@@ -96,10 +94,13 @@ func parseListOfConnections(connections string, timestamp time.Time) []TcpConnec
 // parseTcpConnection only handles single lines, the caller must handle iterating over multiple entries.
 // If there is an error parsing the stirng s, an empty TcpConnection struct with the error will be returned.
 func parseTcpConnection(s string) (TcpConnection, error) {
-	if len(s) < tcpConnectionEndIndex {
+	idx := strings.Index(s, ":")
+	if idx < 0 {
 		return TcpConnection{}, errors.New("TCP connection string is malformed")
 	}
-	connection := s[tcpConnectionStartIndex:tcpConnectionEndIndex]
+	startIdx := idx + 2
+	endIdx := startIdx + tcpConnectionLength
+	connection := s[startIdx:endIdx]
 	split := strings.Split(connection, " ")
 	local := strings.Split(split[0], ":")
 	remote := strings.Split(split[1], ":")
