@@ -46,6 +46,8 @@ func (c CurrectConnections) contains(other TcpConnection) bool {
 	return ret
 }
 
+// Update checks for TCP connections, compares them with the existing state and
+// returns a list of new connections.
 func (c *CurrectConnections) Update() (newConnections []TcpConnection, err error) {
 	tcpConnections, err := getCurrentConnections(c.Source)
 	if err != nil {
@@ -63,6 +65,10 @@ func (c *CurrectConnections) Update() (newConnections []TcpConnection, err error
 	return newConnections, nil
 }
 
+// getCurrentConnections reads the source filepath for a list of TCP connections.
+//
+// Each connection is stamped with the current time. If the source file can't
+// be read, an empty list is returned witha n error.
 func getCurrentConnections(source string) ([]TcpConnection, error) {
 	data, err := ioutil.ReadFile(source)
 	if err != nil {
@@ -75,6 +81,8 @@ func getCurrentConnections(source string) ([]TcpConnection, error) {
 	return tcpConnections, nil
 }
 
+// parseListOfConnections translates a multiline string of connections into
+// TcpConnection objects stamped with the given timestamp.
 func parseListOfConnections(connections string, timestamp time.Time) []TcpConnection {
 	lines := strings.Split(connections, "\n")
 	var parsedConnections []TcpConnection
@@ -88,11 +96,12 @@ func parseListOfConnections(connections string, timestamp time.Time) []TcpConnec
 	return parsedConnections
 }
 
-// parseTcpConnection extracts the local and remote IPv4 address and TCP port from single lines of /proc/net/tcp
-// passed in as a string s.
+// parseTcpConnection extracts the local and remote IPv4 address and TCP port from
+// single lines of /proc/net/tcp passed in as a string s.
 //
-// parseTcpConnection only handles single lines, the caller must handle iterating over multiple entries.
-// If there is an error parsing the stirng s, an empty TcpConnection struct with the error will be returned.
+// parseTcpConnection only handles single lines, the caller must handle iterating over
+// multiple entries. If there is an error parsing the stirng s, an empty TcpConnection
+// struct with the error will be returned.
 func parseTcpConnection(s string) (TcpConnection, error) {
 	idx := strings.Index(s, ":")
 	if idx < 0 {
@@ -131,6 +140,7 @@ func parseTcpConnection(s string) (TcpConnection, error) {
 	}, nil
 }
 
+// PrintNewConnections outputs the list of TCP connections to writer.
 func PrintNewConnections(writer io.Writer, t time.Time, newConnections []TcpConnection) {
 	timestamp := fmt.Sprintf("%d-%02d-%02d %02d:%02d:%02d", t.Year(), t.Month(), t.Day(), t.Hour(), t.Minute(), t.Second())
 	for _, connection := range newConnections {
