@@ -22,7 +22,7 @@ func main() {
 		if err != nil {
 			fmt.Printf("Error reading TCP connections: %s\n", err.Error())
 		} else {
-			tseep.PrintNewConnections(os.Stdout, time.Now(), newConnections)
+			tseep.PrintNewConnections(os.Stdout, newConnections)
 		}
 		time.Sleep(MainLoopPeriod)
 	}

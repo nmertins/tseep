@@ -203,9 +203,9 @@ func formatTimestamp(t time.Time) string {
 }
 
 // PrintNewConnections outputs the list of TCP connections to writer.
-func PrintNewConnections(writer io.Writer, t time.Time, newConnections []TcpConnection) {
-	timestamp := formatTimestamp(t)
+func PrintNewConnections(writer io.Writer, newConnections []TcpConnection) {
 	for _, connection := range newConnections {
+		timestamp := formatTimestamp(connection.timestamp)
 		fmt.Fprintf(writer, "%s: New connection: %s:%d -> %s:%d\n", timestamp, connection.remoteAddress, connection.remotePort, connection.localAddress, connection.localPort)
 	}
 }

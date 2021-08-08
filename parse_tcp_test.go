@@ -107,16 +107,16 @@ func TestCurrentConnectionsUpdate(t *testing.T) {
 }
 
 func TestPrintNewConnections(t *testing.T) {
+	timestamp, _ := time.Parse("2006-01-02T15:04:05.000Z", "2021-04-28T15:28:15.000Z")
 	newConnections := []TcpConnection{
-		{localAddress: "10.0.0.5", localPort: 80, remoteAddress: "192.0.2.56", remotePort: 5973},
-		{localAddress: "10.0.0.5", localPort: 80, remoteAddress: "203.0.113.105", remotePort: 31313},
-		{localAddress: "10.0.0.5", localPort: 80, remoteAddress: "203.0.113.94", remotePort: 9208},
-		{localAddress: "10.0.0.5", localPort: 80, remoteAddress: "198.51.100.245", remotePort: 14201},
+		{localAddress: "10.0.0.5", localPort: 80, remoteAddress: "192.0.2.56", remotePort: 5973, timestamp: timestamp},
+		{localAddress: "10.0.0.5", localPort: 80, remoteAddress: "203.0.113.105", remotePort: 31313, timestamp: timestamp},
+		{localAddress: "10.0.0.5", localPort: 80, remoteAddress: "203.0.113.94", remotePort: 9208, timestamp: timestamp},
+		{localAddress: "10.0.0.5", localPort: 80, remoteAddress: "198.51.100.245", remotePort: 14201, timestamp: timestamp},
 	}
 
 	buffer := bytes.Buffer{}
-	timestamp, _ := time.Parse("2006-01-02T15:04:05.000Z", "2021-04-28T15:28:15.000Z")
-	PrintNewConnections(&buffer, timestamp, newConnections)
+	PrintNewConnections(&buffer, newConnections)
 
 	got := buffer.String()
 	want := `2021-04-28 15:28:15: New connection: 192.0.2.56:5973 -> 10.0.0.5:80
