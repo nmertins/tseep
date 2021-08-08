@@ -37,6 +37,12 @@ type CurrectConnections struct {
 	connections []TcpConnection
 }
 
+type portScan struct {
+	localAddress  string
+	remoteAddress string
+	ports         []int
+}
+
 func (c CurrectConnections) contains(other TcpConnection) bool {
 	ret := false
 	for _, connection := range c.connections {
@@ -63,6 +69,42 @@ func (c *CurrectConnections) Update() (newConnections []TcpConnection, err error
 	c.connections = tcpConnections
 
 	return newConnections, nil
+}
+
+// checkForPortScans interates over the current TCP connections looking for
+// remote addresses that have connected to 3 or port local ports in the last
+// 60 seconds.
+//
+// Due to the amount of iteration going on here, it feels like there is probably
+// a better way to store/retrieve this data.
+func (c CurrectConnections) checkForPortScans() []portScan {
+	scanMap := make(map[string]map[string][]int, 0)
+
+	// For each local address, build a map of remote addresses and the port they connected to.
+	for _, connection := range c.connections {
+		_, ok := scanMap[connection.localAddress]
+		if !ok {
+			scanMap[connection.localAddress] = map[string][]int{
+				connection.remoteAddress: make([]int, 0),
+			}
+		}
+		scanMap[connection.localAddress][connection.remoteAddress] = append(scanMap[connection.localAddress][connection.remoteAddress], int(connection.localPort))
+	}
+
+	// Look through the map for local/remote address combinations that have mroe than 3 port connections.
+	scans := make([]portScan, 0)
+	for localAddress, remoteAddressMap := range scanMap {
+		for remoteAddress, ports := range remoteAddressMap {
+			if len(ports) >= 3 {
+				scan := portScan{
+					localAddress: localAddress, remoteAddress: remoteAddress, ports: ports,
+				}
+				scans = append(scans, scan)
+			}
+		}
+	}
+
+	return scans
 }
 
 // getCurrentConnections reads the source filepath for a list of TCP connections.

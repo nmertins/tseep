@@ -2,6 +2,7 @@ package tseep
 
 import (
 	"bytes"
+	"reflect"
 	"testing"
 	"time"
 )
@@ -123,5 +124,28 @@ func TestPrintNewConnections(t *testing.T) {
 `
 	if buffer.String() != want {
 		t.Errorf("got %q want %q", buffer.String(), want)
+	}
+}
+
+func TestPortScanDetected(t *testing.T) {
+	timestamp := time.Date(2021, 8, 8, 14, 44, 0, 0, time.UTC)
+	tcpConnections := []TcpConnection{
+		{localAddress: "10.0.0.5", localPort: 80, remoteAddress: "192.0.2.56", remotePort: 5973, timestamp: timestamp},
+		{localAddress: "10.0.0.5", localPort: 81, remoteAddress: "192.0.2.56", remotePort: 5973, timestamp: timestamp.Add(30 * time.Second)},
+		{localAddress: "10.0.0.5", localPort: 82, remoteAddress: "192.0.2.56", remotePort: 5973, timestamp: timestamp.Add(60 * time.Second)},
+	}
+
+	currentConnections := CurrectConnections{
+		Source:      "",
+		connections: tcpConnections,
+	}
+
+	got := currentConnections.checkForPortScans()
+	want := []portScan{
+		{localAddress: "10.0.0.5", remoteAddress: "192.0.2.56", ports: []int{80, 81, 82}},
+	}
+
+	if !reflect.DeepEqual(got, want) {
+		t.Errorf("expected to detect port scan")
 	}
 }
