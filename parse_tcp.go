@@ -62,7 +62,8 @@ func (c CurrectConnections) contains(other TcpConnection) int {
 // Update checks for TCP connections, compares them with the existing state and
 // returns a list of new connections.
 func (c *CurrectConnections) Update() (newConnections []TcpConnection, err error) {
-	tcpConnections, err := getCurrentConnections(c.Source)
+	timestamp := time.Now()
+	tcpConnections, err := getCurrentConnections(c.Source, timestamp)
 	if err != nil {
 		return []TcpConnection{}, err
 	}
@@ -76,7 +77,7 @@ func (c *CurrectConnections) Update() (newConnections []TcpConnection, err error
 		}
 	}
 
-	c.connections = tcpConnections
+	c.connections = append(c.connections, newConnections...)
 
 	return newConnections, nil
 }
@@ -126,14 +127,14 @@ func (c CurrectConnections) checkForPortScans(referenceTime time.Time) []portSca
 //
 // Each connection is stamped with the current time. If the source file can't
 // be read, an empty list is returned witha n error.
-func getCurrentConnections(source string) ([]TcpConnection, error) {
+func getCurrentConnections(source string, timestamp time.Time) ([]TcpConnection, error) {
 	data, err := ioutil.ReadFile(source)
 	if err != nil {
 		return []TcpConnection{}, err
 	}
 
 	connectionsRaw := string(data)
-	tcpConnections := parseListOfConnections(connectionsRaw, time.Now())
+	tcpConnections := parseListOfConnections(connectionsRaw, timestamp)
 
 	return tcpConnections, nil
 }

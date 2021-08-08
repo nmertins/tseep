@@ -43,7 +43,7 @@ func TestParseTcpConnection(t *testing.T) {
 }
 
 func TestGetCurrentConnections(t *testing.T) {
-	got, _ := getCurrentConnections("_testdata/sample_input.t0")
+	got, _ := getCurrentConnections("_testdata/sample_input.t0", time.Time{})
 	if len(got) != 3 {
 		t.Fatalf("expected 3 connections, got %d", len(got))
 	}
