@@ -14,8 +14,7 @@ const (
 
 func main() {
 	currentConnections := tseep.CurrectConnections{
-		source:      "/proc/net/tcp",
-		connections: []tseep.TcpConnection{},
+		Source: "/proc/net/tcp",
 	}
 
 	for {

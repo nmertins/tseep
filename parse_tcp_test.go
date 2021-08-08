@@ -57,7 +57,7 @@ func TestCurrentConnectionContains(t *testing.T) {
 		{localAddress: "0.0.0.0", localPort: 22, remoteAddress: "0.0.0.0", remotePort: 0},
 	}
 	currentConnections := CurrectConnections{
-		source:      "",
+		Source:      "",
 		connections: tcpConnections,
 	}
 
@@ -73,7 +73,7 @@ func TestCurrentConnectionContains(t *testing.T) {
 
 func TestCurrentConnectionsUpdate(t *testing.T) {
 	currentConnections := CurrectConnections{
-		source:      "_testdata/sample_input.t0",
+		Source:      "_testdata/sample_input.t0",
 		connections: []TcpConnection{},
 	}
 	t0NewConnections, _ := currentConnections.Update()
@@ -86,7 +86,7 @@ func TestCurrentConnectionsUpdate(t *testing.T) {
 		t.Errorf("expected current connections to contain 3 connections but has %d", len(currentConnections.connections))
 	}
 
-	currentConnections.source = "_testdata/sample_input.t1"
+	currentConnections.Source = "_testdata/sample_input.t1"
 	t1NewConnections, _ := currentConnections.Update()
 
 	if len(t1NewConnections) != 5 {

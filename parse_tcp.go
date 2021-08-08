@@ -24,7 +24,7 @@ type TcpConnection struct {
 }
 
 type CurrectConnections struct {
-	source      string
+	Source      string
 	connections []TcpConnection
 }
 
@@ -40,7 +40,7 @@ func (c CurrectConnections) contains(other TcpConnection) bool {
 }
 
 func (c *CurrectConnections) Update() (newConnections []TcpConnection, err error) {
-	tcpConnections, err := getCurrentConnections(c.source)
+	tcpConnections, err := getCurrentConnections(c.Source)
 	if err != nil {
 		return []TcpConnection{}, err
 	}
