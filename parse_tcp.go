@@ -11,7 +11,8 @@ import (
 
 const (
 	// Connection details are given in the format: `<local address>:<local port> <remote address>:<remote port>`
-	tcpConnectionLength = hexCharactersInIPAddress + 1 + hexCharactersInPort + 1 + hexCharactersInIPAddress + 1 + hexCharactersInPort
+	tcpConnectionLength     = hexCharactersInIPAddress + 1 + hexCharactersInPort + 1 + hexCharactersInIPAddress + 1 + hexCharactersInPort
+	portScanDetectionPeriod = time.Duration(60 * time.Second)
 )
 
 type TcpConnection struct {

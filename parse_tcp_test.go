@@ -131,8 +131,8 @@ func TestPortScanDetected(t *testing.T) {
 	timestamp := time.Date(2021, 8, 8, 14, 44, 0, 0, time.UTC)
 	tcpConnections := []TcpConnection{
 		{localAddress: "10.0.0.5", localPort: 80, remoteAddress: "192.0.2.56", remotePort: 5973, timestamp: timestamp},
-		{localAddress: "10.0.0.5", localPort: 81, remoteAddress: "192.0.2.56", remotePort: 5973, timestamp: timestamp.Add(30 * time.Second)},
-		{localAddress: "10.0.0.5", localPort: 82, remoteAddress: "192.0.2.56", remotePort: 5973, timestamp: timestamp.Add(60 * time.Second)},
+		{localAddress: "10.0.0.5", localPort: 81, remoteAddress: "192.0.2.56", remotePort: 5973, timestamp: timestamp.Add(portScanDetectionPeriod / 2)},
+		{localAddress: "10.0.0.5", localPort: 82, remoteAddress: "192.0.2.56", remotePort: 5973, timestamp: timestamp.Add(portScanDetectionPeriod)},
 	}
 
 	currentConnections := CurrectConnections{
