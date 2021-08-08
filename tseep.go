@@ -2,7 +2,9 @@ package main
 
 import (
 	"fmt"
+	"io"
 	"io/ioutil"
+	"os"
 	"time"
 )
 
@@ -10,7 +12,16 @@ const (
 	MainLoopPeriod = 10 * time.Second
 )
 
+func PrintNewConnections(writer io.Writer, t time.Time, newConnections []TcpConnection) {
+	timestamp := fmt.Sprintf("%d-%02d-%02d %02d:%02d:%02d", t.Year(), t.Month(), t.Day(), t.Hour(), t.Minute(), t.Second())
+	for _, connection := range newConnections {
+		fmt.Fprintf(writer, "%s: New connection: %s:%d -> %s:%d\n", timestamp, connection.remoteAddress, connection.remotePort, connection.localAddress, connection.localPort)
+	}
+}
+
 func main() {
+	currentConnections := CurrectConnections{}
+
 	for {
 		time.Sleep(MainLoopPeriod)
 
@@ -20,8 +31,10 @@ func main() {
 			continue
 		}
 
-		connections := string(data)
+		connectionsRaw := string(data)
+		tcpConnections := ParseListOfConnections(connectionsRaw)
+		newConnections := currentConnections.Update(tcpConnections)
 
-		fmt.Printf("%s", connections)
+		PrintNewConnections(os.Stdout, time.Now(), newConnections)
 	}
 }
