@@ -44,6 +44,7 @@ type PortScan struct {
 	localAddress  string
 	remoteAddress string
 	ports         []int
+	timestamp     time.Time
 }
 
 // Looks through connections for matching local and remote address and port.
@@ -126,7 +127,7 @@ func (c CurrectConnections) checkForPortScans(referenceTime time.Time) []PortSca
 		for remoteAddress, pwt := range remoteAddressMap {
 			if (len(pwt.Ports) >= portScanDetectionCount) && (pwt.Timestamp.Equal(referenceTime)) {
 				scan := PortScan{
-					localAddress: localAddress, remoteAddress: remoteAddress, ports: pwt.Ports,
+					localAddress: localAddress, remoteAddress: remoteAddress, ports: pwt.Ports, timestamp: referenceTime,
 				}
 				scans = append(scans, scan)
 			}
@@ -236,9 +237,9 @@ func portString(ports []int) string {
 	return ret
 }
 
-func PrintPortScans(writer io.Writer, t time.Time, portScans []PortScan) {
-	timestamp := formatTimestamp(t)
+func PrintPortScans(writer io.Writer, portScans []PortScan) {
 	for _, scan := range portScans {
+		timestamp := formatTimestamp(scan.timestamp)
 		fmt.Fprintf(writer, "%s: Port scan detected: %s -> %s on ports %s", timestamp, scan.remoteAddress, scan.localAddress, portString(scan.ports))
 	}
 }

@@ -146,7 +146,7 @@ func TestPortScanDetected(t *testing.T) {
 
 		got := currentConnections.checkForPortScans(timestamp.Add(portScanDetectionPeriod))
 		want := []PortScan{
-			{localAddress: "10.0.0.5", remoteAddress: "192.0.2.56", ports: []int{80, 81, 82}},
+			{localAddress: "10.0.0.5", remoteAddress: "192.0.2.56", ports: []int{80, 81, 82}, timestamp: timestamp.Add(portScanDetectionPeriod)},
 		}
 
 		if !reflect.DeepEqual(got, want) {
@@ -211,14 +211,14 @@ func TestPortScanDetected(t *testing.T) {
 }
 
 func TestPrintPortScans(t *testing.T) {
+	timestamp, _ := time.Parse("2006-01-02T15:04:05.000Z", "2021-04-28T15:28:05.000Z")
 	portScans := []PortScan{
-		{localAddress: "10.0.0.5", remoteAddress: "192.0.2.56", ports: []int{80, 81, 82, 83}},
+		{localAddress: "10.0.0.5", remoteAddress: "192.0.2.56", ports: []int{80, 81, 82, 83}, timestamp: timestamp},
 	}
 
 	buffer := bytes.Buffer{}
-	timestamp, _ := time.Parse("2006-01-02T15:04:05.000Z", "2021-04-28T15:28:05.000Z")
 
-	PrintPortScans(&buffer, timestamp, portScans)
+	PrintPortScans(&buffer, portScans)
 
 	got := buffer.String()
 	want := `2021-04-28 15:28:05: Port scan detected: 192.0.2.56 -> 10.0.0.5 on ports 80,81,82,83`
