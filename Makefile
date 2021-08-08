@@ -30,7 +30,7 @@ uninstall:
 
 ## test: Run automated tests
 test:
-	@go test -v
+	@go test -test.coverprofile "" -v
 
 .PHONY: help
 help: Makefile

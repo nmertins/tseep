@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"strings"
 	"time"
 )
@@ -22,11 +23,14 @@ type TcpConnection struct {
 	remotePort    uint16
 }
 
-type CurrectConnections []TcpConnection
+type CurrectConnections struct {
+	source      string
+	connections []TcpConnection
+}
 
 func (c CurrectConnections) contains(other TcpConnection) bool {
 	ret := false
-	for _, connection := range c {
+	for _, connection := range c.connections {
 		if connection == other {
 			ret = true
 		}
@@ -35,19 +39,36 @@ func (c CurrectConnections) contains(other TcpConnection) bool {
 	return ret
 }
 
-func (c *CurrectConnections) Update(tcpConnections []TcpConnection) (newConnections []TcpConnection) {
+func (c *CurrectConnections) Update() (newConnections []TcpConnection, err error) {
+	tcpConnections, err := getCurrentConnections(c.source)
+	if err != nil {
+		return []TcpConnection{}, err
+	}
+
 	for _, connection := range tcpConnections {
 		if !c.contains(connection) {
 			newConnections = append(newConnections, connection)
 		}
 	}
 
-	*c = tcpConnections
+	c.connections = tcpConnections
 
-	return newConnections
+	return newConnections, nil
 }
 
-func ParseListOfConnections(connections string) []TcpConnection {
+func getCurrentConnections(source string) ([]TcpConnection, error) {
+	data, err := ioutil.ReadFile(source)
+	if err != nil {
+		return []TcpConnection{}, err
+	}
+
+	connectionsRaw := string(data)
+	tcpConnections := parseListOfConnections(connectionsRaw)
+
+	return tcpConnections, nil
+}
+
+func parseListOfConnections(connections string) []TcpConnection {
 	lines := strings.Split(connections, "\n")
 	var parsedConnections []TcpConnection
 

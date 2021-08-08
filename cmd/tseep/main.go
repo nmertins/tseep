@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"time"
 
@@ -13,27 +12,17 @@ const (
 	MainLoopPeriod = 10 * time.Second
 )
 
-func getCurrentConnections() (string, error) {
-	data, err := ioutil.ReadFile("/proc/net/tcp")
-	if err != nil {
-		return "", err
+func main() {
+	currentConnections := tseep.CurrectConnections{
+		source:      "/proc/net/tcp",
+		connections: []tseep.TcpConnection{},
 	}
 
-	connectionsRaw := string(data)
-
-	return connectionsRaw, nil
-}
-
-func main() {
-	currentConnections := tseep.CurrectConnections{}
-
 	for {
-		connectionsRaw, err := getCurrentConnections()
+		newConnections, err := currentConnections.Update()
 		if err != nil {
-			fmt.Printf("Error reading /proc/net/tcp: %s\n", err.Error())
+			fmt.Printf("Error reading TCP connections: %s\n", err.Error())
 		} else {
-			tcpConnections := tseep.ParseListOfConnections(connectionsRaw)
-			newConnections := currentConnections.Update(tcpConnections)
 			tseep.PrintNewConnections(os.Stdout, time.Now(), newConnections)
 		}
 		time.Sleep(MainLoopPeriod)
