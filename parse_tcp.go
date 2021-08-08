@@ -13,6 +13,7 @@ const (
 	// Connection details are given in the format: `<local address>:<local port> <remote address>:<remote port>`
 	tcpConnectionLength     = hexCharactersInIPAddress + 1 + hexCharactersInPort + 1 + hexCharactersInIPAddress + 1 + hexCharactersInPort
 	portScanDetectionPeriod = time.Duration(60 * time.Second)
+	portScanDetectionCount  = 3
 )
 
 type TcpConnection struct {
@@ -78,11 +79,15 @@ func (c *CurrectConnections) Update() (newConnections []TcpConnection, err error
 //
 // Due to the amount of iteration going on here, it feels like there is probably
 // a better way to store/retrieve this data.
-func (c CurrectConnections) checkForPortScans() []portScan {
+func (c CurrectConnections) checkForPortScans(referenceTime time.Time) []portScan {
 	scanMap := make(map[string]map[string][]int, 0)
 
 	// For each local address, build a map of remote addresses and the port they connected to.
 	for _, connection := range c.connections {
+		// Ignore connections outside the detection period
+		if referenceTime.Sub(connection.timestamp) > portScanDetectionPeriod {
+			continue
+		}
 		_, ok := scanMap[connection.localAddress]
 		if !ok {
 			scanMap[connection.localAddress] = map[string][]int{
@@ -90,13 +95,14 @@ func (c CurrectConnections) checkForPortScans() []portScan {
 			}
 		}
 		scanMap[connection.localAddress][connection.remoteAddress] = append(scanMap[connection.localAddress][connection.remoteAddress], int(connection.localPort))
+
 	}
 
 	// Look through the map for local/remote address combinations that have mroe than 3 port connections.
 	scans := make([]portScan, 0)
 	for localAddress, remoteAddressMap := range scanMap {
 		for remoteAddress, ports := range remoteAddressMap {
-			if len(ports) >= 3 {
+			if len(ports) >= portScanDetectionCount {
 				scan := portScan{
 					localAddress: localAddress, remoteAddress: remoteAddress, ports: ports,
 				}

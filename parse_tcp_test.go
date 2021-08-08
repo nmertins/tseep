@@ -129,23 +129,45 @@ func TestPrintNewConnections(t *testing.T) {
 
 func TestPortScanDetected(t *testing.T) {
 	timestamp := time.Date(2021, 8, 8, 14, 44, 0, 0, time.UTC)
-	tcpConnections := []TcpConnection{
-		{localAddress: "10.0.0.5", localPort: 80, remoteAddress: "192.0.2.56", remotePort: 5973, timestamp: timestamp},
-		{localAddress: "10.0.0.5", localPort: 81, remoteAddress: "192.0.2.56", remotePort: 5973, timestamp: timestamp.Add(portScanDetectionPeriod / 2)},
-		{localAddress: "10.0.0.5", localPort: 82, remoteAddress: "192.0.2.56", remotePort: 5973, timestamp: timestamp.Add(portScanDetectionPeriod)},
-	}
 
-	currentConnections := CurrectConnections{
-		Source:      "",
-		connections: tcpConnections,
-	}
+	t.Run("3 connections within port scan detection period", func(t *testing.T) {
+		tcpConnections := []TcpConnection{
+			{localAddress: "10.0.0.5", localPort: 80, remoteAddress: "192.0.2.56", remotePort: 5973, timestamp: timestamp},
+			{localAddress: "10.0.0.5", localPort: 81, remoteAddress: "192.0.2.56", remotePort: 5973, timestamp: timestamp.Add(portScanDetectionPeriod / 2)},
+			{localAddress: "10.0.0.5", localPort: 82, remoteAddress: "192.0.2.56", remotePort: 5973, timestamp: timestamp.Add(portScanDetectionPeriod)},
+		}
 
-	got := currentConnections.checkForPortScans()
-	want := []portScan{
-		{localAddress: "10.0.0.5", remoteAddress: "192.0.2.56", ports: []int{80, 81, 82}},
-	}
+		currentConnections := CurrectConnections{
+			Source:      "",
+			connections: tcpConnections,
+		}
 
-	if !reflect.DeepEqual(got, want) {
-		t.Errorf("expected to detect port scan")
-	}
+		got := currentConnections.checkForPortScans(timestamp.Add(portScanDetectionPeriod))
+		want := []portScan{
+			{localAddress: "10.0.0.5", remoteAddress: "192.0.2.56", ports: []int{80, 81, 82}},
+		}
+
+		if !reflect.DeepEqual(got, want) {
+			t.Errorf("expected to detect port scan")
+		}
+	})
+
+	t.Run("3 connections outside port scan detection period", func(t *testing.T) {
+		tcpConnections := []TcpConnection{
+			{localAddress: "10.0.0.5", localPort: 80, remoteAddress: "192.0.2.56", remotePort: 5973, timestamp: timestamp},
+			{localAddress: "10.0.0.5", localPort: 81, remoteAddress: "192.0.2.56", remotePort: 5973, timestamp: timestamp.Add(portScanDetectionPeriod / 2)},
+			{localAddress: "10.0.0.5", localPort: 82, remoteAddress: "192.0.2.56", remotePort: 5973, timestamp: timestamp.Add(portScanDetectionPeriod + 10*time.Second)},
+		}
+
+		currentConnections := CurrectConnections{
+			Source:      "",
+			connections: tcpConnections,
+		}
+
+		got := currentConnections.checkForPortScans(timestamp.Add(portScanDetectionPeriod + 10*time.Second))
+
+		if len(got) != 0 {
+			t.Errorf("did not expect to detect a port scan")
+		}
+	})
 }
