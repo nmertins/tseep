@@ -199,6 +199,14 @@ func TestPortScanDetected(t *testing.T) {
 		if len(got) != 0 {
 			t.Errorf("did not expect to detect a port scan")
 		}
+
+		currentConnections.connections = append(tcpConnections, TcpConnection{localAddress: "10.0.0.5", localPort: 82, remoteAddress: "192.0.2.56", remotePort: 5973, timestamp: timestamp.Add(portScanDetectionPeriod / 5).Add(10 * time.Second)})
+		// Now that there's been another connection attempt, we should report another port scan.
+		got = currentConnections.checkForPortScans(timestamp.Add(portScanDetectionPeriod / 5).Add(10 * time.Second))
+
+		if len(got) == 0 {
+			t.Errorf("expected to detect a port scan")
+		}
 	})
 }
 
