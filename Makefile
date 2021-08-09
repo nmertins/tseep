@@ -8,6 +8,8 @@ all: help
 
 ## build: Build project binaries
 build:
+	@go get -d -v
+	@go install -v
 	@GOOS=linux GOARCH=arm64 go build -o bin/tseep-linux-arm64 $(GOMAIN)
 	@GOOS=linux GOARCH=amd64 go build -o bin/tseep-linux-amd64 $(GOMAIN)
 

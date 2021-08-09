@@ -19,3 +19,9 @@ After building, run the executable `tseep`. Press Ctrl + C to stop execution.
 ```shell
 ./bin/tseep-linux-amd64
 ```
+
+## Metrics
+
+`tseep` exposes internal metrics at the `/metrics` endpoint on port 2112. Metrics include:
+
+- `tseep_new_connections` - running total of new connections since application started
