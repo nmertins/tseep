@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"os"
 	"os/exec"
 	"strings"
 	"time"
@@ -246,7 +247,12 @@ func PrintPortScans(writer io.Writer, portScans []PortScan) {
 }
 
 func BlockPortScanSource(portScan PortScan) error {
-	cmd := exec.Command("/usr/sbin/iptables", "-A", "INPUT", "-s", portScan.remoteAddress, "-j", "DROP")
+	cmd := exec.Command("iptables", "-A", "INPUT", "-s", portScan.remoteAddress, "-j", "DROP")
+	cmd.Env = os.Environ()
 	err := cmd.Run()
-	return err
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
