@@ -1,6 +1,6 @@
 # t👀p
 
-`tseep` monitors TCP connections on the host and prints new connections every 10 seconds. When `tseep` starts, all existing connections will be reported as new as part of the initialization process.
+`tseep` monitors TCP connections on the host and prints new connections every 10 seconds. When `tseep` starts, all existing connections will be reported as new as part of the initialization process. If `tseep` detects the same remote IP tries to connect to 3 or more ports within 60 seconds, it will report the attempted port scan and create a rule in `iptables` to block the source.
 
 ## Building
 

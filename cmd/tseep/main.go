@@ -42,7 +42,7 @@ func main() {
 			for _, portScan := range portScans {
 				err := tseep.BlockPortScanSource(portScan)
 				if err != nil {
-					fmt.Printf("Attempted to block remote address but failed: %s", err.Error())
+					fmt.Printf("Attempted to block remote address but failed: %s\n", err.Error())
 				}
 			}
 

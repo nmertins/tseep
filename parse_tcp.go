@@ -246,7 +246,7 @@ func PrintPortScans(writer io.Writer, portScans []PortScan) {
 }
 
 func BlockPortScanSource(portScan PortScan) error {
-	cmd := exec.Command("iptables", "-A", "INPUT", "-s", portScan.remoteAddress, "-j", "DROP")
+	cmd := exec.Command("/usr/sbin/iptables", "-A", "INPUT", "-s", portScan.remoteAddress, "-j", "DROP")
 	err := cmd.Run()
 	return err
 }
