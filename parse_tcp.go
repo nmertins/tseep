@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"os/exec"
 	"strings"
 	"time"
 )
@@ -242,4 +243,10 @@ func PrintPortScans(writer io.Writer, portScans []PortScan) {
 		timestamp := formatTimestamp(scan.timestamp)
 		fmt.Fprintf(writer, "%s: Port scan detected: %s -> %s on ports %s\n", timestamp, scan.remoteAddress, scan.localAddress, portString(scan.ports))
 	}
+}
+
+func BlockPortScanSource(portScan PortScan) error {
+	cmd := exec.Command("iptables", "-A", "INPUT", "-s", portScan.remoteAddress, "-j", "DROP")
+	err := cmd.Run()
+	return err
 }
