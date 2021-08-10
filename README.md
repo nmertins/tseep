@@ -20,6 +20,15 @@ After building, run the executable `tseep`. Press Ctrl + C to stop execution.
 ./bin/tseep-linux-amd64
 ```
 
+## Docker
+
+It is possible to run `tseep` in a Docker container and report connections on the host computer. Build the container and run in [`host` networking mode](https://docs.docker.com/network/host/).
+
+```shell
+docker build -t tseep .
+docker run --network host tseep
+```
+
 ## Metrics
 
 `tseep` exposes internal metrics at the `/metrics` endpoint on port 2112. Metrics include:
