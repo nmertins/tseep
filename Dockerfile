@@ -4,4 +4,9 @@ WORKDIR /go/src/app
 COPY . .
 RUN make build
 RUN make install
-ENTRYPOINT ["tseep"]
+
+FROM alpine:3.14 as run
+RUN apk add --update iptables
+WORKDIR /app
+COPY --from=build /usr/local/bin/tseep .
+ENTRYPOINT ["/app/tseep"]
